@@ -1,0 +1,7 @@
+#Use this command for use wallet
+
+WALLET="mywallet_name"
+cohod q distribution rewards $(cohod keys show $WALLET -a)
+cohod q distribution commission $(cohod keys show $WALLET --bech val -a)
+cohod tx distribution withdraw-rewards $(cohod keys show $WALLET --bech val -a) --commission --from $WALLET
+cohod q bank balances $(cohod keys show $WALLET)
