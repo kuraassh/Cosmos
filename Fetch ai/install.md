@@ -15,10 +15,9 @@ $ make install
 #Node address creation and Keys:
 $ fetchd init <NodeName> --chain-id fetchub-3
 $ fetchd keys add <KeysName>
-$ cd
 
-# <NodeName> - your Node name
-  <KeysName> - your Wallet name
+#             <NodeName> - your Node name
+#             <KeysName> - your Wallet name
 
 #Downloading genesis file:
 $ wget https://raw.githubusercontent.com/fetchai/genesis-fetchhub/main/ fetchhub-3/data/genesis.json
