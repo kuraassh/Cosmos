@@ -39,4 +39,4 @@ $ fetchd tx staking create-validator --help
 
 $ fetchd tx staking edit-validator --help
 
-$ fetchd tx staking delegate --help 
+$ fetchd tx staking delegate --help
