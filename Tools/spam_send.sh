@@ -2,119 +2,61 @@
 
 curl -s https://raw.githubusercontent.com/razumv/helpers/main/doubletop.sh | bash
 
-RED="\033[31m"
-YELLOW="\033[33m"
-GREEN="\033[32m"
-NORMAL="\033[0m"
+#!/bin/bash
 
-function setup {
-  binary "${1}"
-  keyname "${2}"
-  sleepTime "${3}"
-  sendCount "${4}"
-  rpcport "${5}"
-}
+PATH_TO_SERVICE=${cohod}
+KEY_PASSWORD=${qwerty1234}
+ACCOUNT=${KURASH}
+TO_ADDRESS=${coho1lxpxjpujcaz4jxg8et7r3trpvuypqkrxgh053z}
+CHAIN_ID=${darkmetter-1}
+MEMO=${6}
+DENOM=${ucoho}
+SEND_AMOUNT=${200}
+FEE_AMOUNT=${200}
+NODE=${10:-"http://localhost:26657"}
+PERIOD_VALUE=${100}
 
-function binary {
-  BINARY=${1}
-}
+ROUND=0
+BROADCAST_MODE="async"
 
-function keyname {
-  KEY_NAME=${1}
-}
+SEQ=$(${PATH_TO_SERVICE} q account ${ACCOUNT} -o json | jq '.sequence | tonumber')
 
-function sleepTime {
-  STIME=${1:-"5s"}
-}
+while :
+do
+    PERIOD=`expr ${ROUND} % ${PERIOD_VALUE}`
 
-function sendCount {
-  COUNT=${1:-"100"}
-}
+    echo "Running sequence: ${SEQ}"
+    CURRENT_BLOCK=$(curl -s ${NODE}/abci_info | jq -r .result.response.last_block_height)
 
-function rpcport {
-  RPC_PORT=${1:-"26657"}
-}
+    if (( $PERIOD == 1 )); then
+        BROADCAST_MODE="sync"
+        echo "Sync broadcast mode"
+    fi
 
-function launch {
-setup "${1}" "${2}" "${3}" "${4}" "${5}"
-echo "-------------------------------------------------------------------"
-echo -e "$YELLOW Enter PASSWORD for your KEY $NORMAL"
-echo "-------------------------------------------------------------------"
-read -s PASS
+    if (( $PERIOD == 4 )); then
+        BROADCAST_MODE="async"
+        echo "Async broadcast mode"
+    fi
 
-COIN=$(curl -s http://localhost:${RPC_PORT}/genesis | jq -r .result.genesis.app_state.crisis.constant_fee.denom)
-echo -e "$GREEN Enter Fees in ${COIN}.$NORMAL"
-read -p "FEES: " FEES
-echo -e "$GREEN Enter receiver address.$NORMAL"
-read -p "RECEIVER ADDRESS: " REC
-FEE=${FEES}${COIN}
-ADDRESS=$(echo $PASS | ${BINARY} keys show ${KEY_NAME} --output json | jq -r '.address')
-VALOPER=$(echo $PASS | ${BINARY} keys show ${ADDRESS} -a --bech val)
-CHAIN=$(${BINARY} status --node http://localhost:${RPC_PORT} 2>&1 | jq -r .NodeInfo.network)
-SENDER=${ADDRESS}
-RECEIVER=${REC}
+    TX_RESULT_RAW_LOG=$(echo $KEY_PASSWORD | $PATH_TO_SERVICE tx bank send $ACCOUNT $TO_ADDRESS \
+        ${FEE_AMOUNT}${DENOM} \
+        --fees ${FEE_AMOUNT}${DENOM} \
+        --chain-id $CHAIN_ID \
+        --output json \
+        --note $MEMO \
+        --broadcast-mode $BROADCAST_MODE \
+        --sequence $SEQ \
+        --timeout-height $(($CURRENT_BLOCK + 5)) -y | \
+        jq '.raw_log')
 
-echo "-------------------------------------------------------------------"
-echo -e "$YELLOW Check you Validator data: $NORMAL"
-echo -e "$GREEN Address: $ADDRESS $NORMAL"
-echo -e "$GREEN Valoper: $VALOPER $NORMAL"
-echo -e "$GREEN Chain: $CHAIN $NORMAL"
-echo -e "$GREEN Coin: $COIN $NORMAL"
-echo -e "$GREEN Key Name: $KEY_NAME $NORMAL"
-echo -e "$GREEN Sleep Time: $STIME $NORMAL"
-echo "-------------------------------------------------------------------"
-echo -e "$GREEN Receiver Address: $ADDRESS $NORMAL"
-echo "-------------------------------------------------------------------"
-echo -e "$YELLOW If your Data is right type$RED yes$NORMAL.$NORMAL"
-echo -e "$YELLOW If your Data is wrong type$RED no$NORMAL$YELLOW and check it.$NORMAL $NORMAL"
-read -p "Your answer: " ANSWER
+    SEQ=$(($SEQ + 1))
 
-if [ "$ANSWER" == "yes" ]; then
-    SEQ=$(${BINARY} query account ${SENDER} --output json | jq -r .sequence)
-      for ((i = 0 ; i < ${COUNT} ; i++)); do
-        AMOUNT=$(( $RANDOM %100 ))
-        AMOUNT=$(( AMOUNT+5 ))
+    if [[ "$TX_RESULT_RAW_LOG" == *"incorrect account sequence"* ]]; then
+        echo $TX_RESULT_RAW_LOG
+        sleep 28
+        SEQ=$(echo $TX_RESULT_RAW_LOG | sed 's/.* expected \([0-9]*\).*/\1/')
         echo $SEQ
-        CUR_BLOCK=$(curl -s http://localhost:${RPC_PORT}/abci_info | jq -r .result.response.last_block_height)
-        TX=$(echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log")
-          if [ "$TX" == *"incorrect"* ]; then
-            SEQ=$(($SEQ+1))
-            echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
-            sleep 10
-          else
-            echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
-          fi
-        SEQ=$(($SEQ+1))
-        sleep ${STIME}
-      done
-elif [ "$ANSWER" == "no" ]; then
-    echo -e "$RED Exited...$NORMAL"
-    exit 0
-else
-    echo -e "$RED Answer wrong. Exited...$NORMAL"
-    exit 0
-fi
-}
+    fi
 
-while getopts ":b:k:s:c:p:" o; do
-  case "${o}" in
-    b)
-      b=${OPTARG}
-      ;;
-    k)
-      k=${OPTARG}
-      ;;
-    s)
-      s=${OPTARG}
-      ;;
-    c)
-      c=${OPTARG}
-      ;;
-    p)
-      p=${OPTARG}
-      ;;
-  esac
+    ROUND=`expr ${ROUND} + 1`
 done
-shift $((OPTIND-1))
-
-launch "${b}" "${k}" "${s}" "${c}" "${p}"
