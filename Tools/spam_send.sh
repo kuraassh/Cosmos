@@ -13,7 +13,7 @@ MEMO=${6}
 DENOM=${ucoho}
 SEND_AMOUNT=${200}
 FEE_AMOUNT=${200}
-NODE=${10:-"http://localhost:26657"}
+NODE=${"http://localhost:26657"}
 PERIOD_VALUE=${100}
 
 ROUND=0
