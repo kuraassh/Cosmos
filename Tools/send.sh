@@ -63,7 +63,7 @@ echo -e "$GREEN Coin: $COIN $NORMAL"
 echo -e "$GREEN Key Name: $KEY_NAME $NORMAL"
 echo -e "$GREEN Sleep Time: $STIME $NORMAL"
 echo "-------------------------------------------------------------------"
-echo -e "$GREEN Receiver Address: $RECEIVER $NORMAL"
+echo -e "$GREEN Receiver Address: $ADDRESS $NORMAL"
 echo "-------------------------------------------------------------------"
 echo -e "$YELLOW If your Data is right type$RED yes$NORMAL.$NORMAL"
 echo -e "$YELLOW If your Data is wrong type$RED no$NORMAL$YELLOW and check it.$NORMAL $NORMAL"
@@ -84,7 +84,7 @@ if [ "$ANSWER" == "yes" ]; then
           else
             echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --sequence ${SEQ} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
           fi
-        SEQ=$(($SEQ))
+        SEQ=$(($SEQ+1))
         sleep ${STIME}
       done
 elif [ "$ANSWER" == "no" ]; then
