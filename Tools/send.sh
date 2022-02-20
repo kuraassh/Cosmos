@@ -70,14 +70,21 @@ echo -e "$YELLOW If your Data is wrong type$RED no$NORMAL$YELLOW and check it.$N
 read -p "Your answer: " ANSWER
 
 if [ "$ANSWER" == "yes" ]; then
+    SEQ=$(${BINARY} query account ${SENDER} --output json | jq -r .sequence)
+      for ((i = 0 ; i < ${COUNT} ; i++)); do
+        AMOUNT=$(( $RANDOM %100 ))
+        AMOUNT=$(( AMOUNT+5 ))
+        echo $SEQ
         CUR_BLOCK=$(curl -s http://localhost:${RPC_PORT}/abci_info | jq -r .result.response.last_block_height)
         TX=$(echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log")
           if [ "$TX" == *"incorrect"* ]; then
+            SEQ=$(($SEQ+1))
             echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
             sleep 10
           else
             echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
           fi
+        SEQ=$(($SEQ+1))
         sleep ${STIME}
       done
 elif [ "$ANSWER" == "no" ]; then
