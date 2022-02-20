@@ -71,12 +71,12 @@ read -p "Your answer: " ANSWER
 
 if [ "$ANSWER" == "yes" ]; then
         CUR_BLOCK=$(curl -s http://localhost:${RPC_PORT}/abci_info | jq -r .result.response.last_block_height)
-        TX=$(echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --sequence ${SEQ} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log")
+        TX=$(echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log")
           if [ "$TX" == *"incorrect"* ]; then
-            echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --sequence ${SEQ} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
+            echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
             sleep 10
           else
-            echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --sequence ${SEQ} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
+            echo $PASS | ${BINARY} tx bank send ${SENDER} ${RECEIVER} ${AMOUNT}${COIN} --chain-id=${CHAIN} --from ${KEY_NAME} --fees ${FEE} --node http://localhost:${RPC_PORT} --timeout-height $(($CUR_BLOCK + 5)) -y | grep "raw_log\|txhash"
           fi
         sleep ${STIME}
       done
