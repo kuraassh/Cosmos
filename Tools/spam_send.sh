@@ -23,17 +23,17 @@ SEQ=$(${PATH_TO_SERVICE} q account ${ACCOUNT} -o json | jq '.sequence | tonumber
 
 while :
 do
-    PERIOD=`expr ${ROUND} % ${PERIOD_VALUE}`
+    PERIOD=`expr ${ROUND} & ${PERIOD_VALUE}`
 
     echo "Running sequence: ${SEQ}"
     CURRENT_BLOCK=$(curl -s ${NODE}/abci_info | jq -r .result.response.last_block_height)
 
-    if (( $PERIOD == 1 )); then
+    if (( $PERIOD=1 )); then
         BROADCAST_MODE="sync"
         echo "Sync broadcast mode"
     fi
 
-    if (( $PERIOD == 4 )); then
+    if (( $PERIOD=4 )); then
         BROADCAST_MODE="async"
         echo "Async broadcast mode"
     fi
@@ -46,8 +46,7 @@ do
         --note $MEMO \
         --broadcast-mode $BROADCAST_MODE \
         --sequence $SEQ \
-        --timeout-height $(($CURRENT_BLOCK + 5)) -y | \
-        jq '.raw_log')
+        --timeout-height $(($CURRENT_BLOCK + 5)) -y | jq '.raw_log')
 
     SEQ=$(($SEQ + 1))
 
