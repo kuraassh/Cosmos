@@ -10,7 +10,7 @@ ACC_NAME=Wallet____name
 NODE=http://localhost:26657 #change it only if you use another rpc port of your node
 
 for (( ;; )); do
-        BAL=$(cohod q  bank balances ${DELEGATOR});
+        BAL=$(celestia-appd q  bank balances ${DELEGATOR});
         echo -e "BALANCE: ${GREEN}${BAL}${NC} celes\n"
         echo -e "Claim rewards\n"
         echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx distribution withdraw-rewards ${VALIDATOR} --chain-id=devnet-2 --from=${ACC_NAME} --gas=auto -y --commission --yes
