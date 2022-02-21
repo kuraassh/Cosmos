@@ -11,7 +11,7 @@ NODE=http://localhost:26657 #change it only if you use another rpc port of your 
 
 for (( ;; )); do
         BAL=$(cohod q  bank balances ${DELEGATOR});
-        echo -e "BALANCE: ${GREEN}${BAL}${NC} uflix\n"
+        echo -e "BALANCE: ${GREEN}${BAL}${NC} ucoho\n"
         echo -e "Claim rewards\n"
         echo -e "${PASWD}\n${PASWD}\n" | cohod tx distribution withdraw-rewards ${VALIDATOR} --chain-id=darkmetter-1 --from=${ACC_NAME} --gas=auto -y --commission --fees=2000ucoho --yes
         for (( timer=10; timer>0; timer-- ))
@@ -21,7 +21,7 @@ for (( ;; )); do
         done
         BAL=$(cohod query bank balances ${DELEGATOR} --node ${NODE} -o json | jq -r '.balances  | .[].amount');
         BAL=$((BAL-1000000));
-        echo -e "BALANCE: ${GREEN}${BAL}${NC} uflix\n"
+        echo -e "BALANCE: ${GREEN}${BAL}${NC} ucoho\n"
         echo -e "Stake ALL\n"
         echo -e "${PASWD}\n${PASWD}\n" | cohod tx staking delegate ${VALIDATOR} ${BAL}ucoho  --chain-id=darkmatter- --from ${ACC_NAME}  --gas auto -y -y --fees=2000ucoho
         for (( timer=${DELAY}; timer>0; timer-- ))
