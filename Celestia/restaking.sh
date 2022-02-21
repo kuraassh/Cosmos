@@ -11,19 +11,19 @@ NODE=http://localhost:26657 #change it only if you use another rpc port of your 
 
 for (( ;; )); do
         BAL=$(cohod q  bank balances ${DELEGATOR});
-        echo -e "BALANCE: ${GREEN}${BAL}${NC} ucoho\n"
+        echo -e "BALANCE: ${GREEN}${BAL}${NC} celes\n"
         echo -e "Claim rewards\n"
-        echo -e "${PASWD}\n${PASWD}\n" | cohod tx distribution withdraw-rewards ${VALIDATOR} --chain-id=darkmetter-1 --from=${ACC_NAME} --gas=auto -y --commission --fees=2000ucoho --yes
+        echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx distribution withdraw-rewards ${VALIDATOR} --chain-id=devnet-2 --from=${ACC_NAME} --gas=auto -y --commission --yes
         for (( timer=10; timer>0; timer-- ))
         do
                 printf "* sleep for ${RED}%02d${NC} sec\r" $timer
                 sleep 1
         done
-        BAL=$(cohod query bank balances ${DELEGATOR} --node ${NODE} -o json | jq -r '.balances  | .[].amount');
-        BAL=$((BAL-1000000));
-        echo -e "BALANCE: ${GREEN}${BAL}${NC} ucoho\n"
+        BAL=$(celestia-appd query bank balances ${DELEGATOR} --node ${NODE} -o json | jq -r '.balances  | .[].amount');
+        BAL=$((BAL-100));
+        echo -e "BALANCE: ${GREEN}${BAL}${NC} celes\n"
         echo -e "Stake ALL\n"
-        echo -e "${PASWD}\n${PASWD}\n" | cohod tx staking delegate ${VALIDATOR} ${BAL}ucoho  --chain-id=darkmatter-1 --from ${ACC_NAME}  --gas auto -y -y --fees=2000ucoho
+        echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx staking delegate ${VALIDATOR} ${BAL}celes  --chain-id=devnet-2 --from ${ACC_NAME}  --gas auto -y
         for (( timer=${DELAY}; timer>0; timer-- ))
         do
                 printf "* sleep for ${RED}%02d${NC} sec\r" $timer
