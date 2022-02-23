@@ -13,7 +13,7 @@ for (( ;; )); do
         BAL=$(celestia-appd q  bank balances ${DELEGATOR});
         echo -e "BALANCE: ${GREEN}${BAL}${NC} celes\n"
         echo -e "Claim rewards\n"
-        echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx distribution withdraw-rewards ${VALIDATOR} --chain-id=devnet-2 --from=${ACC_NAME} --gas=auto -y --commission --yes
+        echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx distribution withdraw-rewards ${VALIDATOR} --chain-id=devnet-2 --from=$"{ACC_NAME}" --gas=auto -y --commission --yes
         for (( timer=10; timer>0; timer-- ))
         do
                 printf "* sleep for ${RED}%02d${NC} sec\r" $timer
@@ -23,7 +23,7 @@ for (( ;; )); do
         BAL=$((BAL-100));
         echo -e "BALANCE: ${GREEN}${BAL}${NC} celes\n"
         echo -e "Stake ALL\n"
-        echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx staking delegate ${VALIDATOR} ${BAL}celes  --chain-id=devnet-2 --from ${ACC_NAME}  --gas auto -y
+        echo -e "${PASWD}\n${PASWD}\n" | celestia-appd tx staking delegate ${VALIDATOR} ${BAL}celes  --chain-id=devnet-2 --from $"{ACC_NAME}"  --gas auto -y
         for (( timer=${DELAY}; timer>0; timer-- ))
         do
                 printf "* sleep for ${RED}%02d${NC} sec\r" $timer
