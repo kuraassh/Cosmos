@@ -13,7 +13,7 @@ for (( ;; )); do
         BAL=$(cohod q  bank balances ${DELEGATOR});
         echo -e "BALANCE: ${GREEN}${BAL}${NC} ucoho\n"
         echo -e "Claim rewards\n"
-        echo -e "${PASWD}\n${PASWD}\n" | cohod tx distribution withdraw-rewards ${VALIDATOR} --chain-id=darkmetter-1 --from=${ACC_NAME} --gas=auto -y --commission --fees=2000ucoho --yes
+        echo -e "${PASWD}\n${PASWD}\n" | cohod tx distribution withdraw-rewards ${VALIDATOR} --chain-id=darkmatter-1 --from=${ACC_NAME} --gas=auto -y --commission --fees=2000ucoho --yes
         for (( timer=10; timer>0; timer-- ))
         do
                 printf "* sleep for ${RED}%02d${NC} sec\r" $timer
